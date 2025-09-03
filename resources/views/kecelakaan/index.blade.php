@@ -81,26 +81,28 @@
 
                 <!-- Tombol Upload File -->
                 <form action="{{ route('kecelakaan.upload') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <label class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer flex items-center gap-2 transition">
-                        <!-- Icon file -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M4 16l6-6m0 0l6 6m-6-6v12"/>
-                        </svg>
-                        Upload File
-                        <input type="file" name="file" class="hidden" onchange="this.form.submit()">
-                    </label>
-                </form>
+                @csrf
+                <label class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer flex items-center gap-2 transition">
+                    <!-- Cloud upload icon modern -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Upload File
+                    <input type="file" name="file" class="hidden" onchange="this.form.submit()">
+                </label>
+            </form>
             </div>
         </div>
 
         <!-- Modal Form Tambah Pengajuan -->
-    <div id="formModal" class="fixed inset-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-[9999] hidden">
-        <div class="bg-white rounded-2xl w-full max-w-3xl h-[90vh] overflow-y-auto shadow-2xl relative z-[10000] p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-800">Tambah Pengajuan Kecelakaan</h3>
-                <button type="button" onclick="closeForm()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-            </div>
+        <div id="formModal" class="fixed inset-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-[9999] hidden">
+            <div class="bg-white rounded-2xl w-full max-w-3xl h-[90vh] overflow-y-auto shadow-2xl relative z-[10000] p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Tambah Pengajuan Kecelakaan</h3>
+                    <button type="button" onclick="closeForm()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+                </div>
 
             <form action="{{ route('kecelakaan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
@@ -136,7 +138,7 @@
                     <!-- Cidera -->
                     <div class="relative">
                         <label class="block text-gray-700 font-medium mb-1">Cidera</label>
-                        <select name="Cidera" class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
+                        <select name="cidera" class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
                             <option value="LL">LL</option>
                             <option value="MD">MD</option>
                         </select>
@@ -201,13 +203,14 @@
                         <td class="border px-4 py-2">{{ $item->lokasi }}</td>
                         <td class="border px-4 py-2">{{ $item->tanggal_waktu }}</td>
                         <td class="border px-4 py-2">{{ $item->laporan }}</td>
-                        <td class="border px-4 py-2">{{ $item->Cidera }}</td>
+                        <td class="border px-4 py-2">{{ $item->cidera }}</td>
                         <td class="border px-4 py-2">{{ $item->sifat_laka }}</td>
                         <td class="border px-4 py-2">{{ $item->status_lp }}</td>
                         <td class="border px-4 py-2 space-x-2">
                             <button
                                 data-item='@json($item)'
-                                onclick="openEditModal(this.dataset.item)">
+                                onclick="openEditModal(this.dataset.item)"
+                                class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
                                 Edit
                             </button>
                             <form action="{{ route('kecelakaan.destroy', $item->id) }}" method="POST" class="inline">
@@ -230,62 +233,89 @@
 
     <!-- Modal Edit -->
     <div id="editModal" class="fixed inset-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center hidden z-[9999]">
-        <div class="bg-white rounded-lg shadow-lg w-1/2 p-6 relative">
-            <h2 class="text-xl font-bold mb-4">Edit Data Kecelakaan</h2>
-             <form id="editForm" method="POST" enctype="multipart/form-data">
+        <div class="bg-white rounded-2xl w-full max-w-3xl h-[90vh] overflow-y-auto shadow-2xl relative z-[10000] p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">Edit Pengajuan Kecelakaan</h3>
+                <button type="button" onclick="closeEditModal()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+
+            <form id="editForm" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 @method('PUT')
-                    <input type="hidden" name="id" id="edit_id">
-                        <div class="mb-3">
-                            <label class="block mb-1">Nama</label>
-                            <input type="text" name="nama" id="edit_nama" class="w-full border rounded px-3 py-2">
-                        </div>
+                <input type="hidden" name="id" id="edit_id">
 
-                        <div class="mb-3">
-                            <label class="block mb-1">Lokasi</label>
-                            <input type="text" name="lokasi" id="edit_lokasi" class="w-full border rounded px-3 py-2">
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="relative">
+                        <label class="block text-gray-700 font-medium mb-1">Nama</label>
+                        <input type="text" name="nama" id="edit_nama"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="block mb-1">Tanggal & Waktu</label>
-                            <input type="datetime-local" name="tanggal_waktu" id="edit_tanggal" class="w-full border rounded px-3 py-2">
-                        </div>
+                    <div class="relative">
+                        <label class="block text-gray-700 font-medium mb-1">Lokasi</label>
+                        <input type="text" name="lokasi" id="edit_lokasi"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="block mb-1">Laporan</label>
-                            <input type="text" name="laporan" id="edit_laporan" class="w-full border rounded px-3 py-2">
-                        </div>
+                    <div class="relative">
+                        <label class="block text-gray-700 font-medium mb-1">Tanggal & Waktu</label>
+                        <input type="datetime-local" name="tanggal_waktu" id="edit_tanggal"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="block mb-1">Cidera</label>
-                            <input type="text" name="Cidera" id="edit_cidera" class="w-full border rounded px-3 py-2">
-                        </div>
+                    <div class="relative">
+                        <label class="block text-gray-700 font-medium mb-1">Laporan</label>
+                        <input type="text" name="laporan" id="edit_laporan"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="block mb-1">Sifat Laka</label>
-                            <select name="sifat_laka" id="edit_sifat" class="w-full border rounded px-3 py-2">
-                                <option value="Normal">Normal</option>
-                                <option value="Ringan">Ringan</option>
-                                <option value="Berat">Berat</option>
-                            </select>
-                        </div>
+                    <div class="relative">
+                        <label class="block text-gray-700 font-medium mb-1">Cidera</label>
+                        <select name="cidera" id="edit_cidera"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
+                            <option value="LL">LL</option>
+                            <option value="MD">MD</option>
+                        </select>
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="block mb-1">Status LP</label>
-                            <select name="status_lp" id="edit_status" class="w-full border rounded px-3 py-2">
-                                <option value="Pending">Pending</option>
-                                <option value="Approved">Approved</option>
-                                <option value="Rejected">Rejected</option>
-                            </select>
-                        </div>
+                    <div class="relative">
+                        <label class="block text-gray-700 font-medium mb-1">Sifat Laka</label>
+                        <select name="sifat_laka" id="edit_sifat"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
+                            <option value="Normal">Normal</option>
+                            <option value="Ringan">Ringan</option>
+                            <option value="Berat">Berat</option>
+                        </select>
+                    </div>
 
-                        <div class="flex justify-end space-x-2">
-                            <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Batal</button>
-                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Simpan</button>
-                        </div>
-                    </form>
+                    <div class="relative">
+                        <label class="block text-gray-700 font-medium mb-1">Status LP</label>
+                        <select name="status_lp" id="edit_status"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm bg-gray-50 transition">
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
                 </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="closeEditModal()"
+                        class="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md transition">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition">
+                        Simpan
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
     <script>
         function openForm() {
             document.getElementById('formModal').classList.remove('hidden');
@@ -328,6 +358,37 @@
         function confirmSave() {
             return confirm("Anda yakin ingin menyimpan perubahan?");
         }
+        function initLeaflet() {
+            // Bikin map
+            var map = L.map('map').setView([0.5071, 101.4478], 10);
+
+            // Tile OSM
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // Data dari backend
+            var kecelakaan = @json($data);
+
+            // Tambahin marker
+            kecelakaan.forEach(function(item) {
+                // Pastikan ada lat & lng di DB
+                if (item.lat && item.lng) {
+                    let marker = L.marker([parseFloat(item.lat), parseFloat(item.lng)]).addTo(map);
+                    marker.bindPopup(`
+                        <b style="color:#b22234">${item.nama}</b><br>
+                        Lokasi: ${item.lokasi}<br>
+                        Waktu: ${item.tanggal_waktu}<br>
+                        Cidera: ${item.cidera}<br>
+                        Status LP: ${item.status_lp}
+                    `);
+                }
+            });
+        }
+
+        // Panggil pas load
+        window.onload = initLeaflet;
     </script>
 
     <!-- Chart Korban -->
@@ -353,21 +414,10 @@
     </div>
 </div>
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Leaflet Map
-    var map = L.map('map').setView([0.5071, 101.4478], 12); // Pekanbaru
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-    }).addTo(map);
-    L.marker([0.5071, 101.4478]).addTo(map).bindPopup('Lokasi Kecelakaan');
-
     // Chart Korban
     new Chart(document.getElementById('korbanChart'), {
         type: 'line',
@@ -420,23 +470,34 @@
     });
 
     function openEditModal(item) {
+        // Parse data JSON kalau masih string
+        if (typeof item === 'string') {
+            item = JSON.parse(item);
+        }
+
         document.getElementById('editModal').classList.remove('hidden');
 
+        // Set action form sesuai id
         document.getElementById('editForm').action = '{{ url("kecelakaan") }}/' + item.id;
 
-        document.getElementById('edit_id').value = item.id;
-        document.getElementById('edit_nama').value = item.nama;
-        document.getElementById('edit_lokasi').value = item.lokasi;
+        // Isi field
+        document.getElementById('edit_id').value = item.id || '';
+        document.getElementById('edit_nama').value = item.nama || '';
+        document.getElementById('edit_lokasi').value = item.lokasi || '';
 
-        // Gunakan field yang benar dari migration
-        let dt = new Date(item.tanggal_kejadian);
-        let formatted = dt.toISOString().slice(0,16); // YYYY-MM-DDTHH:MM
-        document.getElementById('edit_tanggal').value = formatted;
+        // Tanggal & Waktu
+        if(item.tanggal_waktu){
+            let dt = new Date(item.tanggal_waktu);
+            let formatted = dt.toISOString().slice(0,16); // YYYY-MM-DDTHH:MM
+            document.getElementById('edit_tanggal').value = formatted;
+        } else {
+            document.getElementById('edit_tanggal').value = '';
+        }
 
-        document.getElementById('edit_laporan').value = item.laporan;
-        document.getElementById('edit_cidera').value = item.cidera; // huruf kecil
-        document.getElementById('edit_sifat').value = item.sifat_laka;
-        document.getElementById('edit_status').value = item.status_lp;
+        document.getElementById('edit_laporan').value = item.laporan || '';
+        document.getElementById('edit_cidera').value = item.cidera || ''; // sesuai field migration
+        document.getElementById('edit_sifat').value = item.sifat_laka || '';
+        document.getElementById('edit_status').value = item.status_lp || '';
     }
 
     function closeEditModal() {

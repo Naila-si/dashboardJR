@@ -96,7 +96,10 @@
 
 <!-- JS Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASfKCDURAkmkRiXESOgvW8D7TxyV8jIps&callback=initMap" async defer></script>
+
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- JS Scripts -->
 <script>
@@ -142,48 +145,44 @@ function renderCharts() {
 }
 renderCharts();
 
-/* ================= Google Maps ================= */
-function initMap() {
-    const riau = { lat: -0.507, lng: 101.447 };
-    const map = new google.maps.Map(document.getElementById('mapRiau'), { zoom: 8, center: riau });
-    const kecelakaan = @json($kecelakaan);
-    let mapMarkers = [];
+/* ================= Leaflet Map ================= */
+var map = L.map('mapRiau').setView([-0.507, 101.447], 8);
 
-    function addMarkers(data) {
-        data.forEach(k => {
-            const marker = new google.maps.Marker({
-                position: { lat: parseFloat(k.lat), lng: parseFloat(k.lng) },
-                map: map,
-                icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#b22234", fillOpacity: 0.9, strokeColor: "#fff", strokeWeight: 2 }
-            });
-            mapMarkers.push(marker);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+}).addTo(map);
 
-            const info = new google.maps.InfoWindow({
-                content: `<div style="min-width:220px">
-                            <h3 style="margin:0; color:#b22234; font-weight:bold;">${k.name}</h3>
-                            <p><b>Jam Kejadian:</b> ${k.jam}</p>
-                            <p><b>Korban:</b> ${k.korban} orang</p>
-                            <p><b>Luka-luka:</b> ${k.luka}</p>
-                            <p><b>Meninggal:</b> ${k.meninggal}</p>
-                            <p><b>Action Plan:</b><br>${k.action}</p>
-                          </div>`
-            });
+var kecelakaan = @json($kecelakaan);
+var markers = [];
 
-            marker.addListener("mouseover", () => info.open(map, marker));
-            marker.addListener("mouseout", () => info.close());
-        });
-    }
+function addMarkers(data) {
+    data.forEach(k => {
+        let marker = L.marker([parseFloat(k.lat), parseFloat(k.lng)]).addTo(map);
+        marker.bindPopup(`
+            <b style="color:#b22234">${k.name}</b><br>
+            <b>Jam Kejadian:</b> ${k.jam}<br>
+            <b>Korban:</b> ${k.korban} orang<br>
+            <b>Luka-luka:</b> ${k.luka}<br>
+            <b>Meninggal:</b> ${k.meninggal}<br>
+            <b>Action Plan:</b> ${k.action}
+        `);
+        markers.push(marker);
+    });
+}
 
-    addMarkers(kecelakaan);
+addMarkers(kecelakaan);
 
-    window.filterMap = function() {
-        const start = document.getElementById('filterStart').value;
-        const end = document.getElementById('filterEnd').value;
-        const filtered = kecelakaan.filter(k => k.tanggal >= start && k.tanggal <= end);
-        mapMarkers.forEach(m => m.setMap(null));
-        mapMarkers = [];
-        addMarkers(filtered);
-    }
+window.filterMap = function() {
+    const start = document.getElementById('filterStart').value;
+    const end = document.getElementById('filterEnd').value;
+    const filtered = kecelakaan.filter(k => k.tanggal >= start && k.tanggal <= end);
+
+    // Hapus marker lama
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    addMarkers(filtered);
 }
 
 /* ================= Dropdown & Logout ================= */
