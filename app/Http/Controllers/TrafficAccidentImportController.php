@@ -10,7 +10,7 @@ class TrafficAccidentImportController extends Controller
 {
     public function showImportForm()
     {
-        return view('import'); // return view form upload
+        return view('dashboard'); // return view form upload
     }
 
     public function import(Request $request)

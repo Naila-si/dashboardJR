@@ -16,6 +16,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
+        // Logout kalau ada sesi login
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
         return view('auth.login');
     }
 
@@ -28,7 +33,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('traffic-accidents.import-form', absolute: false));
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**
