@@ -20,15 +20,15 @@
               bg-[linear-gradient(to_right,#d1d5db_1px,transparent_1px),linear-gradient(to_bottom,#d1d5db_1px,transparent_1px)]
               bg-[size:40px_40px]">
 
-    <!-- Blue box small -->
-    <div class="absolute bg-blue-600 w-[420px] h-[500px] rounded-3xl"></div>
+    <!-- Red box small -->
+    <div class="absolute bg-[#B22234] w-[420px] h-[500px] rounded-3xl"></div>
 
     <!-- White Card -->
     <div class="relative z-10 bg-white w-[360px] rounded-2xl shadow-lg p-6">
 
       <!-- Header -->
       <div class="border-b mb-4 pb-2">
-        <h3 class="text-sm font-semibold text-gray-700 inline-block border-b-2 border-blue-600">
+        <h3 class="text-sm font-semibold text-gray-700 inline-block border-b-2 border-[#B22234]">
           Sign In
         </h3>
       </div>
@@ -39,7 +39,7 @@
            class="absolute top-4 right-4 w-28 drop-shadow-lg z-10">
 
       <!-- Title -->
-      <h2 class="text-xl font-extrabold text-blue-700 text-center">WELCOME</h2>
+      <h2 class="text-xl font-extrabold text-[#B22234] text-center">WELCOME</h2>
 
       <!-- Form -->
       <form method="POST" action="{{ route('login') }}" class="space-y-4">
@@ -50,7 +50,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input type="email" name="email" placeholder="Enter your email"
                 class="w-full px-3 py-2 rounded-md bg-gray-100 border border-gray-300
-                    focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    focus:ring-2 focus:ring-[#B22234] outline-none" required>
         </div>
 
         <!-- Password -->
@@ -59,7 +59,7 @@
             <div class="relative">
                 <input type="password" id="password" name="password" placeholder="Enter your password"
                     class="w-full px-3 py-2 rounded-md bg-gray-100 border border-gray-300
-                        focus:ring-2 focus:ring-blue-500 outline-none pr-10" required>
+                        focus:ring-2 focus:ring-[#B22234] outline-none pr-10" required>
 
                 <!-- Eye icon toggle -->
                 <span id="togglePassword" class="absolute right-3 top-2.5 text-gray-400 cursor-pointer">
@@ -92,14 +92,14 @@
 
         <!-- Forgot password -->
         <div class="flex justify-end">
-            <a href="{{ route('password.request') }}" class="text-blue-500 text-sm hover:underline">
+            <a href="{{ route('password.request') }}" class="text-[#B22234] text-sm hover:underline">
                 Forgot Password?
             </a>
         </div>
 
         <!-- Submit -->
         <button type="submit"
-            class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded-md
+            class="w-full bg-gradient-to-r from-[#B22234] to-[#B22234] text-white py-2 rounded-md
                 font-semibold shadow hover:opacity-90 transition">
             Login
         </button>

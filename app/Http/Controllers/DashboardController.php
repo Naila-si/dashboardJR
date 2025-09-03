@@ -43,9 +43,10 @@ class DashboardController extends Controller
 
         // 4. Statistik ringkas
         $stats = [
-            ['label'=>'Total Kecelakaan','value'=>$data->count(),'icon'=>'fa-car'],
-            ['label'=>'Total Korban','value'=>$data->sum('korban_total'),'icon'=>'fa-user-injured'],
-            ['label'=>'Total Santunan','value'=>$data->sum('santunan'),'icon'=>'fa-money-bill-wave'],
+            ['label' => 'Jumlah Kendaraan Laka', 'value' => $data->count(), 'icon' => 'fa-car-crash'],
+            ['label' => 'Jumlah Korban', 'value' => $data->sum('korban_total'), 'icon' => 'fa-users'],
+            ['label' => 'Jumlah Ahli Waris', 'value' => $data->sum('ahli_waris_total'), 'icon' => 'fa-user-friends'],
+            ['label' => 'Rp. Total Santunan', 'value' => $data->sum('santunan'), 'icon' => 'fa-hand-holding-usd'],
         ];
 
         // 5. Chart data (dinamis per bulan)

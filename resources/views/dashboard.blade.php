@@ -42,7 +42,7 @@
 <!-- Statistik Ringkas -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
     @foreach($stats as $stat)
-        <div class="p-6 rounded-xl shadow hover:shadow-lg transition-all duration-300 flex items-center justify-between bg-white">
+        <div class="p-6 rounded-xl shadow hover:shadow-lg transition-all duration-300 flex items-center justify-between" style="background-color: #F8EFE2;">
             <div class="w-14 h-14 flex items-center justify-center rounded-full border-2 border-red-800 bg-red-100">
                 <i class="fas {{ $stat['icon'] }} text-red-800 text-xl"></i>
             </div>
