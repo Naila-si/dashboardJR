@@ -49,56 +49,58 @@ class DashboardController extends Controller
             ['label' => 'Rp. Total Santunan', 'value' => $data->sum('santunan'), 'icon' => 'fa-hand-holding-usd'],
         ];
 
-        // 5. Chart data (dinamis per bulan)
+        // 🔹 Format label bulanan pakai YYYY-MM
+        $monthKey = fn($v) => $v->tahun_laka . '-' . str_pad($v->bulan_laka, 2, '0', STR_PAD_LEFT);
+
+        // 5. Chart data (bulanan & tahunan)
         $chartSantunan = [
-            'labels'=>range(1,12), // bulan 1-12
-            'data'=>$data->groupBy('bulan_laka')->map(fn($v)=> $v->sum('santunan'))->toArray()
+            'labels' => $data->map($monthKey)->unique()->values()->toArray(),
+            'data' => $data->groupBy($monthKey)->map(fn($v) => $v->sum('santunan'))->values()->toArray()
         ];
 
         $chartMeninggal = [
-            'labels'=>range(1,12),
-            'data'=>$data->groupBy('bulan_laka')->map(fn($v)=> $v->sum('korban_md'))->toArray()
+            'labels' => $data->map($monthKey)->unique()->values()->toArray(),
+            'data' => $data->groupBy($monthKey)->map(fn($v) => $v->sum('korban_md'))->values()->toArray()
         ];
 
         $chartKorban = [
-            'labels'=>range(1,12),
-            'data'=>$data->groupBy('bulan_laka')->map(fn($v)=> $v->sum('korban_total'))->toArray()
+            'labels' => $data->map($monthKey)->unique()->values()->toArray(),
+            'data' => $data->groupBy($monthKey)->map(fn($v) => $v->sum('korban_total'))->values()->toArray()
         ];
 
-        // 5b. Chart perbandingan tahun
-        $yearComparison = [];
-        if (!empty($selectedYears)) {
-            foreach ($selectedYears as $year) {
-                $yearComparison[$year] = $data->where('tahun_laka', $year)->sum('korban_total'); // contoh
-            }
-        }
+        // 5b. Chart perbandingan tahunan
+        $yearComparison = [
+            'labels' => $data->pluck('tahun_laka')->unique()->values()->toArray(),
+            'data'   => $data->groupBy('tahun_laka')->map(fn($v) => $v->sum('korban_total'))->values()->toArray(),
+        ];
 
         // Chart korban per kota
         $chartKorbanPerkot = [
             'labels' => $data->pluck('kota')->unique()->values()->toArray(),
-            'data' => $data->groupBy('kota')->map(fn($v)=> $v->sum('korban_total'))->values()->toArray(),
+            'data' => $data->groupBy('kota')->map(fn($v) => $v->sum('korban_total'))->values()->toArray(),
         ];
 
-        // Chart korban per kecamatan (asumsi ada field 'kecamatan')
+        // Chart korban per kecamatan
         $chartKorbanPerkecmtn = [
             'labels' => $data->pluck('kecamatan')->unique()->values()->toArray(),
-            'data' => $data->groupBy('kecamatan')->map(fn($v)=> $v->sum('korban_total'))->values()->toArray(),
+            'data' => $data->groupBy('kecamatan')->map(fn($v) => $v->sum('korban_total'))->values()->toArray(),
         ];
 
-        // Chart lainnya (contoh: santunan per tahun)
+        // Chart tahunan (contoh: santunan per tahun)
         $chartLainnya = [
             'labels' => $data->pluck('tahun_laka')->unique()->values()->toArray(),
-            'data' => $data->groupBy('tahun_laka')->map(fn($v)=> $v->sum('santunan'))->values()->toArray(),
+            'data' => $data->groupBy('tahun_laka')->map(fn($v) => $v->sum('santunan'))->values()->toArray(),
         ];
 
-        // 6. Data kecelakaan untuk map
-        $kecelakaan = $data->map(fn($item)=> [
-            'name'=>$item->lokasi ?? $item->jalan ?? 'Unknown',
-            'lat'=>$item->latitude ?? -0.507,
-            'lng'=>$item->longitude ?? 101.447,
-            'korban'=>$item->korban_total,
-            'jam'=>$item->waktu ?? '-',
-            'action'=>$item->action_plan ?? '-'
+        // 6. Data untuk map
+        $kecelakaan = $data->map(fn($item) => [
+            'name' => $item->lokasi ?? $item->jalan ?? 'Unknown',
+            'lat' => $item->latitude ?? -0.507,
+            'lng' => $item->longitude ?? 101.447,
+            'korban' => $item->korban_total,
+            'jam' => $item->waktu ?? '-',
+            'tanggal' => $item->tanggal_laka ?? ($item->tahun_laka . '-' . str_pad($item->bulan_laka, 2, '0', STR_PAD_LEFT) . '-01'),
+            'action' => $item->action_plan ?? '-'
         ]);
 
         // 7. Return view

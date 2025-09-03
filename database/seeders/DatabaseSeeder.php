@@ -11,9 +11,8 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
+    public function run()
     {
-        \App\Models\TrafficAccident::factory(50)->create();
+        $this->call(TrafficAccidentSeeder::class);
     }
-    
 }

@@ -66,40 +66,59 @@
 <!-- Map -->
 <div class="bg-white rounded-xl shadow mb-6 h-96 overflow-hidden border border-gray-200" id="mapRiau"></div>
 
-<!-- Perbandingan Tahun -->
+<!-- Perbandingan Waktu -->
 <div class="mb-6 bg-white p-4 rounded-xl shadow border border-gray-200">
+    <!-- Judul -->
+    <h2 class="text-lg font-bold text-red-800 mb-4">Perbandingan Berdasarkan Waktu</h2>
+
     <div class="flex items-center gap-4 mb-4">
-        <label for="yearStart">Tahun Mulai:</label>
-        <input type="number" id="yearStart" min="2000" max="{{ date('Y') }}" value="{{ date('Y')-1 }}" class="border rounded p-1">
-        <label for="yearEnd">Tahun Akhir:</label>
-        <input type="number" id="yearEnd" min="2000" max="{{ date('Y') }}" value="{{ date('Y') }}" class="border rounded p-1">
-        <button onclick="filterYear()" class="bg-red-800 text-white px-3 py-1 rounded">Tampilkan</button>
+        <label for="dateStart">Dari:</label>
+        <input type="date" id="dateStart" class="border rounded p-1">
+        <label for="dateEnd">Sampai:</label>
+        <input type="date" id="dateEnd" class="border rounded p-1">
+        <button onclick="filterByDate()" class="bg-red-800 text-white px-3 py-1 rounded">Tampilkan</button>
     </div>
-    <canvas id="yearComparison" class="w-full h-48" data-values="{{ json_encode($yearComparison) }}"></canvas>
+
+    <canvas id="yearComparison" class="w-full h-64"
+        data-values="{{ json_encode($yearComparison) }}">
+    </canvas>
 </div>
 
 <!-- 5 Bar Chart -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    <!-- Chart 1-3 normal -->
     @foreach([
         ['id'=>'chartSantunan','title'=>'Santunan','data'=>$chartSantunan],
         ['id'=>'chartMeninggal','title'=>'Korban Meninggal','data'=>$chartMeninggal],
         ['id'=>'chartKorbanPerkot','title'=>'Korban Per Kota','data'=>$chartKorbanPerkot],
-        ['id'=>'chartKorbanPerkec','title'=>'Korban Per Kecamatan','data'=>$chartKorbanPerkecmtn],
-        ['id'=>'chartLainnya','title'=>'Lainnya','data'=>$chartLainnya],
     ] as $chart)
         <div class="rounded-xl shadow p-4 bg-white border border-gray-200">
             <h3 class="font-semibold mb-2 text-gray-700">{{ $chart['title'] }}</h3>
             <canvas id="{{ $chart['id'] }}" class="w-full h-48" data-values="{{ json_encode($chart['data']) }}"></canvas>
         </div>
     @endforeach
+
+    <!-- Chart 4 & 5 dibuat besar -->
+    @foreach([
+        ['id'=>'chartKorbanPerkec','title'=>'Korban Per Kecamatan','data'=>$chartKorbanPerkecmtn],
+        ['id'=>'chartLainnya','title'=>'Lainnya','data'=>$chartLainnya],
+    ] as $chart)
+        <div class="rounded-xl shadow p-4 bg-white border border-gray-200 lg:col-span-2">
+            <h3 class="font-semibold mb-2 text-gray-700">{{ $chart['title'] }}</h3>
+            <canvas id="{{ $chart['id'] }}" class="w-full h-64" data-values="{{ json_encode($chart['data']) }}"></canvas>
+        </div>
+    @endforeach
 </div>
 
-<!-- JS Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <!-- Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- JS Scripts -->
 <script>
@@ -144,6 +163,207 @@ function renderCharts() {
     });
 }
 renderCharts();
+/* ================= Year Comparison Chart ================= */
+function renderYearComparison() {
+    const canvas = document.getElementById('yearComparison');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const values = JSON.parse(canvas.getAttribute('data-values'));
+
+    // kalau sudah ada chart, hancurin dulu
+    if (canvas.chartInstance) {
+        canvas.chartInstance.destroy();
+    }
+
+    canvas.chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(values),
+            datasets: [{
+                label: "Total Korban",
+                data: Object.values(values),
+                backgroundColor: "rgba(178,34,52,0.8)",
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+renderYearComparison();
+
+/* ================= Simpan Data Original untuk Filter ================= */
+document.querySelectorAll('canvas[data-values]').forEach(canvas => {
+    canvas.setAttribute("data-original", canvas.getAttribute("data-values"));
+});
+
+window.filterByDate = function() {
+    const start = document.getElementById('dateStart').value;
+    const end = document.getElementById('dateEnd').value;
+
+    if (!start || !end) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tanggal Belum Dipilih',
+            text: 'Silakan pilih rentang tanggal terlebih dahulu.',
+            confirmButtonColor: '#b22234'
+        });
+        return;
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    if (startDate > endDate) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Input Tidak Valid',
+            text: 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir.',
+            confirmButtonColor: '#b22234'
+        });
+        return;
+    }
+
+    // Loop semua chart kecuali map
+    document.querySelectorAll('canvas[data-values]').forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        const values = JSON.parse(canvas.getAttribute('data-original'));
+
+        let filtered = { labels: [], data: [] };
+
+        values.labels.forEach((label, i) => {
+            // Parsing tanggal dari label (format bisa YYYY, YYYY-MM, atau YYYY-MM-DD)
+            let labelDate;
+            if (/^\d{4}$/.test(label)) {
+                labelDate = new Date(label + "-01-01"); // hanya tahun
+            } else if (/^\d{4}-\d{2}$/.test(label)) {
+                labelDate = new Date(label + "-01"); // tahun-bulan
+            } else {
+                labelDate = new Date(label); // tanggal lengkap
+            }
+
+            if (labelDate >= startDate && labelDate <= endDate) {
+                filtered.labels.push(label);
+                filtered.data.push(values.data[i]);
+            }
+        });
+
+        // Hapus chart lama lalu render ulang
+        if (canvas.chartInstance) {
+            canvas.chartInstance.destroy();
+        }
+
+        canvas.chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: filtered.labels,
+                datasets: [{
+                    label: canvas.id,
+                    data: filtered.data,
+                    backgroundColor: "rgba(178,34,52,0.8)",
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    });
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Filter Berhasil',
+        text: `Menampilkan data dari ${start} sampai ${end}.`,
+        confirmButtonColor: '#b22234',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+/* ================= Filter Semua Chart (Kecuali Map) ================= */
+window.filterYear = function () {
+    const start = document.getElementById('yearStart').value;
+    const end = document.getElementById('yearEnd').value;
+
+    if (!start || !end) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tahun Belum Dipilih',
+            text: 'Silakan pilih tahun mulai dan tahun akhir.',
+            confirmButtonColor: '#b22234'
+        });
+        return;
+    }
+
+    const startYear = parseInt(start);
+    const endYear = parseInt(end);
+
+    if (startYear > endYear) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Input Tidak Valid',
+            text: 'Tahun mulai tidak boleh lebih besar dari tahun akhir.',
+            confirmButtonColor: '#b22234'
+        });
+        return;
+    }
+
+    // Loop semua canvas chart (kecuali map)
+    document.querySelectorAll('canvas[data-values]').forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        let values = JSON.parse(canvas.getAttribute('data-original'));
+
+        let filtered = { labels: [], data: [] };
+
+        values.labels.forEach((label, i) => {
+            // Coba ekstrak tahun dari label (misal 2023, 2023-05, 2023-05-12)
+            let tahun = parseInt(label.toString().substring(0, 4));
+            if (tahun >= startYear && tahun <= endYear) {
+                filtered.labels.push(label);
+                filtered.data.push(values.data[i]);
+            }
+        });
+
+        // Hapus chart lama sebelum render baru
+        if (canvas.chartInstance) {
+            canvas.chartInstance.destroy();
+        }
+
+        canvas.chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: filtered.labels,
+                datasets: [{
+                    label: canvas.id,
+                    data: filtered.data,
+                    backgroundColor: "rgba(178,34,52,0.8)",
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    });
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Filter Berhasil',
+        text: `Menampilkan data dari tahun ${startYear} sampai ${endYear}.`,
+        confirmButtonColor: '#b22234',
+        timer: 2000,
+        showConfirmButton: false
+    });
+};
 
 /* ================= Leaflet Map ================= */
 var map = L.map('mapRiau').setView([-0.507, 101.447], 8);
@@ -154,6 +374,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 var kecelakaan = @json($kecelakaan);
+console.log("kecelakaan:", kecelakaan);
 var markers = [];
 
 function addMarkers(data) {
@@ -173,17 +394,50 @@ function addMarkers(data) {
 
 addMarkers(kecelakaan);
 
-window.filterMap = function() {
-    const start = document.getElementById('filterStart').value;
-    const end = document.getElementById('filterEnd').value;
-    const filtered = kecelakaan.filter(k => k.tanggal >= start && k.tanggal <= end);
+    window.filterMap = function() {
+        const start = document.getElementById('filterStart').value;
+        const end = document.getElementById('filterEnd').value;
 
-    // Hapus marker lama
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
+        if (!start || !end) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Tanggal Belum Dipilih',
+                text: 'Silakan pilih rentang tanggal terlebih dahulu.',
+                confirmButtonColor: '#b22234'
+            });
+            return;
+        }
 
-    addMarkers(filtered);
-}
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+
+        const filtered = kecelakaan.filter(k => {
+            const kDate = new Date(k.tanggal);
+            return kDate >= startDate && kDate <= endDate;
+        });
+
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+        addMarkers(filtered);
+
+        if (filtered.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Data Tidak Ditemukan',
+                text: 'Tidak ada kecelakaan pada rentang tanggal ini.',
+                confirmButtonColor: '#b22234'
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Filter Berhasil',
+                text: `Menampilkan ${filtered.length} data kecelakaan.`,
+                confirmButtonColor: '#b22234',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    }
 
 /* ================= Dropdown & Logout ================= */
 function toggleDropdown() {

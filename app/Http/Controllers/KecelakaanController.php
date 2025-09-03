@@ -29,19 +29,17 @@ class KecelakaanController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama' => 'required|string',
-            'lokasi' => 'required|string',
-            'tanggal_waktu' => 'required|date',
-            'laporan' => 'required|string',
-            'Cidera' => 'required|string',
-            'sifat_laka' => 'required|string',
-            'status_lp' => 'required|string',
-        ]);
+        $data = new Kecelakaan();
+        $data->nama = $request->nama;
+        $data->lokasi = $request->lokasi;
+        $data->tanggal_waktu = $request->tanggal_waktu;
+        $data->laporan = $request->laporan;
+        $data->cidera = $request->cidera;
+        $data->sifat_laka = $request->sifat_laka;
+        $data->status_lp = $request->status_lp;
+        $data->save();
 
-        Kecelakaan::create($request->all());
-
-        return redirect()->route('kecelakaan.index')->with('success', 'Data berhasil ditambahkan!');
+        return redirect()->route('kecelakaan.index')->with('success', 'Data berhasil ditambahkan');
     }
 
     /**
