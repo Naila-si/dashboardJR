@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GeminiController;
@@ -7,15 +8,15 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KecelakaanController;
 use App\Http\Controllers\AhliWarisController;
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // ========================
 // HALAMAN LOGIN & AUTH
 // ========================
 
-// Form login (hapus guest middleware)
-Route::get('/login', [AuthenticatedSessionController::class, 'create'])
-    ->name('login');
+// Form login
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 
 // Submit login
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
@@ -31,57 +32,67 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
 // ========================
-// ROUTE HALAMAN ROOT
+// HALAMAN ROOT
 // ========================
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', fn() => redirect()->route('login'));
 
 // ========================
-// ROUTE UNTUK HALAMAN DASHBOARD
-// ========================
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
-    ->name('dashboard');
-
-// ========================
-// ROUTE UNTUK PROFILE
+// DASHBOARD
 // ========================
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 // ========================
-// ROUTE UNTUK ADMIN
+// PROFILE
+// ========================
+Route::middleware('auth')->prefix('profile')->group(function () {
+    Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// ========================
+// ADMIN ONLY
 // ========================
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/ai', [GeminiController::class, 'show'])->name('gemini.show');
     Route::post('/ai', [GeminiController::class, 'ask'])->name('gemini.ask');
+
     Route::get('/master', [MasterController::class, 'index'])->name('master');
 });
 
 // ========================
-// ROUTE UNTUK AHLI WARIS
+// AHLI WARIS
 // ========================
 Route::middleware('auth')->group(function () {
     Route::resource('ahliwaris', AhliWarisController::class)->except(['edit']);
-    Route::post('/ahliwaris/upload', [AhliWarisController::class, 'upload'])->name('ahliwaris.upload');
+    Route::post('ahliwaris/upload', [AhliWarisController::class, 'upload'])->name('ahliwaris.upload');
 });
 
 // ========================
-// ROUTE UNTUK DATA KECELAKAAN
+// DATA KECELAKAAN
 // ========================
 Route::middleware('auth')->group(function () {
     Route::resource('kecelakaan', KecelakaanController::class)->except(['edit']);
-    Route::post('/kecelakaan/store', [KecelakaanController::class, 'store'])->name('kecelakaan.store');
-    Route::post('/kecelakaan/upload', [KecelakaanController::class, 'upload'])->name('kecelakaan.upload');
-    Route::put('/kecelakaan/{kecelakaan}', [KecelakaanController::class, 'update'])->name('kecelakaan.update');
+    Route::post('kecelakaan/upload', [KecelakaanController::class, 'upload'])->name('kecelakaan.upload');
+});
+
+
+// ========================
+// ROUTE UNTUK ACTIVITY
+// ========================
+// web.php
+Route::prefix('kecelakaan/{kecelakaan}')->group(function () {
+    Route::get('activities', [ActivityController::class, 'index'])->name('activity.index');
+    Route::post('activities', [ActivityController::class, 'store'])->name('activity.store');
+    Route::get('activities/{activity}/edit', [ActivityController::class, 'edit'])->name('activity.edit');
+    Route::put('activities/{activity}', [ActivityController::class, 'update'])->name('activity.update');
+    Route::delete('activities/{activity}', [ActivityController::class, 'destroy'])->name('activity.destroy');
 });
 
 // ========================
-// ROUTE UNTUK SEARCH IMAGE VIA SERPAPI
+// SEARCH IMAGE VIA SERPAPI
 // ========================
 Route::get('/search-image', function (\Illuminate\Http\Request $request) {
     $query = $request->query('query');

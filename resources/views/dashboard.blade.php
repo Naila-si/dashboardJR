@@ -60,7 +60,7 @@
     <input type="date" id="filterStart" class="border rounded p-1">
     <label for="filterEnd">Sampai:</label>
     <input type="date" id="filterEnd" class="border rounded p-1">
-    <button onclick="filterMap()" class="bg-red-800 text-white px-3 py-1 rounded">Filter</button>
+    <button type="button" onclick="filterMap()" class="bg-red-800 text-white px-3 py-1 rounded">Filter</button>
 </div>
 
 <!-- Map -->
@@ -116,7 +116,6 @@
 <!-- Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- JS Scripts -->
@@ -386,15 +385,27 @@ var markers = [];
 function addMarkers(data) {
     data.forEach(k => {
         if (!k.lat || !k.lng) return; // skip kalau kosong/null
+
         let marker = L.marker([parseFloat(k.lat), parseFloat(k.lng)]).addTo(map);
+
+        // Kalau ada id di data, pakai itu, kalau tidak kasih dummy 1
+        let detailUrl = `/kecelakaan/${k.id ?? 1}`;
+
         marker.bindPopup(`
-            <b style="color:#b22234">${k.name}</b><br>
-            <b>Jam Kejadian:</b> ${k.jam}<br>
-            <b>Korban:</b> ${k.korban} orang<br>
-            <b>Luka-luka:</b> ${k.luka}<br>
-            <b>Meninggal:</b> ${k.meninggal}<br>
-            <b>Action Plan:</b> ${k.action}
+            <div style="min-width:200px">
+                <b style="color:#b22234">${k.name ?? 'Lokasi Tidak Diketahui'}</b><br>
+                <b>Jam Kejadian:</b> ${k.jam ?? '-'}<br>
+                <b>Korban:</b> ${k.korban ?? 0} orang<br>
+                <b>Luka-luka:</b> ${k.luka ?? 0}<br>
+                <b>Meninggal:</b> ${k.meninggal ?? 0}<br>
+                <b>Action Plan:</b> ${k.action ?? '-'}<br>
+                <a href="${detailUrl}"
+                   class="text-red-800 font-semibold hover:underline mt-2 inline-block">
+                   Lihat Selengkapnya
+                </a>
+            </div>
         `);
+
         markers.push(marker);
     });
 }

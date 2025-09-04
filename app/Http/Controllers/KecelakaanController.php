@@ -47,7 +47,7 @@ class KecelakaanController extends Controller
      */
     public function show(string $id)
     {
-        $data = Kecelakaan::findOrFail($id);
+        $data = Kecelakaan::with('activities')->findOrFail($id);
         return view('kecelakaan.show', compact('data'));
     }
 
