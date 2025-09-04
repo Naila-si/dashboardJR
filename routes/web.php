@@ -6,6 +6,7 @@ use App\Http\Controllers\MasterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KecelakaanController;
+use App\Http\Controllers\AhliWarisController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // ========================
@@ -59,6 +60,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/ai', [GeminiController::class, 'show'])->name('gemini.show');
     Route::post('/ai', [GeminiController::class, 'ask'])->name('gemini.ask');
     Route::get('/master', [MasterController::class, 'index'])->name('master');
+});
+
+// ========================
+// ROUTE UNTUK AHLI WARIS
+// ========================
+Route::middleware('auth')->group(function () {
+    Route::resource('ahliwaris', AhliWarisController::class)->except(['edit']);
+    Route::post('/ahliwaris/upload', [AhliWarisController::class, 'upload'])->name('ahliwaris.upload');
 });
 
 // ========================

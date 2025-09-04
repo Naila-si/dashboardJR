@@ -68,7 +68,7 @@
                             transform transition-all duration-300 font-medium">Data Kecelakaan</span>
             </a>
 
-            <a href="#"
+            <a href="{{ route('ahliwaris.index') }}"
                class="flex items-center px-3 py-3 rounded-lg text-gray-700
                     hover:bg-gradient-to-r hover:from-red-500 hover:to-red-700 hover:text-white transition-all duration-300">
                 <i class="fas fa-users text-lg w-6 text-center"></i>

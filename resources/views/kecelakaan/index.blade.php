@@ -82,17 +82,17 @@
                 <!-- Tombol Upload File -->
                 <form action="{{ route('kecelakaan.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <label class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer flex items-center gap-2 transition">
-                    <!-- Cloud upload icon modern -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    Upload File
-                    <input type="file" name="file" class="hidden" onchange="this.form.submit()">
-                </label>
-            </form>
+                    <label class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer flex items-center gap-2 transition">
+                        <!-- Cloud upload icon modern -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Upload File
+                        <input type="file" name="file" class="hidden" onchange="this.form.submit()">
+                    </label>
+                </form>
             </div>
         </div>
 
@@ -222,7 +222,6 @@
                                     Hapus
                                 </button>
                             </form>
-
                         </td>
                     </tr>
                     @endforeach
