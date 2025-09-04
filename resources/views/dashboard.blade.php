@@ -64,7 +64,10 @@
 </div>
 
 <!-- Map -->
-<div class="bg-white rounded-xl shadow mb-6 h-96 overflow-hidden border border-gray-200" id="mapRiau"></div>
+<div id="mapRiau"
+     class="bg-white rounded-xl shadow mb-6 overflow-hidden border border-gray-200"
+     style="height: 400px; width: 100%;">
+</div>
 
 <!-- Perbandingan Waktu -->
 <div class="mb-6 bg-white p-4 rounded-xl shadow border border-gray-200">
@@ -111,10 +114,6 @@
 </div>
 
 <!-- Leaflet CSS & JS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
@@ -143,7 +142,13 @@ function renderCharts() {
     document.querySelectorAll('canvas[data-values]').forEach(canvas => {
         const ctx = canvas.getContext('2d');
         const values = JSON.parse(canvas.getAttribute('data-values'));
-        new Chart(ctx, {
+
+        // Hancurkan chart lama kalau ada
+        if (canvas.chartInstance) {
+            canvas.chartInstance.destroy();
+        }
+
+        canvas.chartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: values.labels,
@@ -163,6 +168,7 @@ function renderCharts() {
     });
 }
 renderCharts();
+
 /* ================= Year Comparison Chart ================= */
 function renderYearComparison() {
     const canvas = document.getElementById('yearComparison');
@@ -379,6 +385,7 @@ var markers = [];
 
 function addMarkers(data) {
     data.forEach(k => {
+        if (!k.lat || !k.lng) return; // skip kalau kosong/null
         let marker = L.marker([parseFloat(k.lat), parseFloat(k.lng)]).addTo(map);
         marker.bindPopup(`
             <b style="color:#b22234">${k.name}</b><br>

@@ -3,7 +3,7 @@
 @section('title', 'Data Ahli Waris')
 
 @section('content')
-<div class="space-y-6 px-4 md:px-6 lg:px-8">
+<div class="space-y-6 px-0 w-full max-w-full">
 
     <!-- HEADER -->
     <header class="flex justify-between items-center mb-6 shadow rounded-md p-4 bg-red-800 text-amber-100">
@@ -72,45 +72,56 @@
             </div>
         </div>
 
-        <table class="table-auto w-full border-collapse border border-gray-300 text-sm">
-            <thead class="bg-gray-200">
-                <tr>
-                    <th class="p-2">ID</th>
-                    <th class="p-2">Tanggal</th>
-                    <th class="p-2">No. Berkas</th>
-                    <th class="p-2">Cedera</th>
-                    <th class="p-2">Nama Pemohon</th>
-                    <th class="p-2">Alamat</th>
-                    <th class="p-2">Penyelesaian</th>
-                    <th class="p-2">Status</th>
-                    <th class="p-2">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($dataSantunan as $item)
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-2">{{ $item->id }}</td>
-                    <td class="p-2">{{ $item->tanggal }}</td>
-                    <td class="p-2">{{ $item->no_berkas }}</td>
-                    <td class="p-2">{{ $item->cedera }}</td>
-                    <td class="p-2">{{ $item->nama_pemohon }}</td>
-                    <td class="p-2">{{ $item->alamat }}</td>
-                    <td class="p-2">{{ $item->penyelesaian }}</td>
-                    <td class="p-2">{{ $item->status }}</td>
-                    <td class="p-2 flex gap-2">
-                        <button data-item='@json($item)' onclick="openEditModal(this.dataset.item)"
-                            class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">Edit</button>
-                        <form action="{{ route('ahliwaris.destroy', $item->id) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <div class="overflow-x-auto w-full">
+            <table class="min-w-full border border-gray-300 text-sm">
+                <thead class="bg-gray-200 text-gray-700">
+                    <tr>
+                        <th class="p-2 text-center border">ID</th>
+                        <th class="p-2 text-center border">Tanggal</th>
+                        <th class="p-2 text-center border">No. Berkas</th>
+                        <th class="p-2 text-center border">Cedera</th>
+                        <th class="p-2 text-center border">Nama Pemohon</th>
+                        <th class="p-2 text-center border">Alamat</th>
+                        <th class="p-2 text-center border">Penyelesaian</th>
+                        <th class="p-2 text-center border">Status</th>
+                        <th class="p-2 text-center border">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($dataSantunan as $item)
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-2 border text-center">{{ $item->id }}</td>
+                        <td class="p-2 border text-center">{{ $item->tanggal }}</td>
+                        <td class="p-2 border text-center">{{ $item->no_berkas }}</td>
+                        <td class="p-2 border text-center">{{ $item->cedera }}</td>
+                        <td class="p-2 border">{{ $item->nama_pemohon }}</td>
+                        <td class="p-2 border">{{ $item->alamat }}</td>
+                        <td class="p-2 border text-center">{{ $item->penyelesaian }}</td>
+                        <td class="p-2 border text-center">{{ $item->status }}</td>
+                        <td class="p-2 border text-center">
+                            <div class="flex justify-center gap-2">
+                                <button
+                                    data-item='@json($item)'
+                                    onclick="openEditModal(this.dataset.item)"
+                                    class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+                                    Edit
+                                </button>
+                                <form action="{{ route('ahliwaris.destroy', $item->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                                        onclick="return confirm('Yakin ingin menghapus data ini?')">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script src="//unpkg.com/alpinejs" defer></script>

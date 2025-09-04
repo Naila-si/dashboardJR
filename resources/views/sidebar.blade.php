@@ -86,7 +86,7 @@
         </header>
 
         <!-- Konten halaman -->
-        <main class="flex-1 w-full overflow-x-hidden">
+        <main class="w-full px-0">
             @yield('content')
         </main>
     </div>
